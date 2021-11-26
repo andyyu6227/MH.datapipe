@@ -1,4 +1,4 @@
-Package: mHealth_Data_Pipeline
+Package: MH.datapipe
 Title: Preprocessing/filtering mHealth data, imputing NA & check imputation quality 
 Version: 0.0.0.9000
 Authors@R: 
