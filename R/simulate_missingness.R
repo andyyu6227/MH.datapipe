@@ -63,8 +63,12 @@ my_missForest = function(dat, var_name, seed){
 seven_moving_everage = function(dat, var_name, seed){
   set.seed(seed)
   copy_row_name = rownames(dat)
-  sql_query = paste0('SELECT subject_id,', var_name,', AVG(',var_name,') OVER (ORDER BY subject_id, date ROWS BETWEEN 7 PRECEDING AND CURRENT ROW) AS moving_average FROM dat ORDER BY subject_id, date')
+  sql_query = 'SELECT subject_id, date, step_count, AVG(step_count) OVER(PARTITION BY subject_id ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS moving_average3 FROM dat ORDER BY subject_id, date'
+  sql_query2 = 'SELECT subject_id, date, step_count, CASE WHEN moving_average3 IS NULL THEN (AVG(moving_average3) OVER(PARTITION BY subject_id ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW)) ELSE moving_average3 END AS moving_average2 FROM dat ORDER BY subject_id, date'
+  sql_query3 = 'SELECT subject_id, date, step_count, CASE WHEN moving_average2 IS NULL THEN (AVG(moving_average2) OVER(PARTITION BY subject_id)) ELSE moving_average2 END AS moving_average FROM dat ORDER BY subject_id, date'
   dat = sqldf::sqldf(sql_query)
+  dat = sqldf::sqldf(sql_query2)
+  dat = sqldf::sqldf(sql_query3)
   dat[which(is.na(dat$step_count)),][var_name] = dat[which(is.na(dat$step_count)),]['moving_average']
   rownames(dat) = copy_row_name
   return(dat)
